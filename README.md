@@ -1,4 +1,4 @@
-# Log
+# 🪵
 
 `github.com/thecodinglab/log` is another structured logging library for Golang.
 It has been inspired by some other awesome logging libraries such
