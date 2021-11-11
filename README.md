@@ -38,6 +38,7 @@ import (
 
 	"github.com/thecodinglab/log"
 	"github.com/thecodinglab/log/capture"
+	"github.com/thecodinglab/log/level"
 	"github.com/thecodinglab/log/sinks/file"
 )
 
@@ -45,6 +46,7 @@ func main() {
 	// initialize logger to print to stdout
 	logger := log.New(
 		file.New(os.Stdout, file.TextFormatter{}),
+		level.Info,
 	)
 	defer logger.Sync()
 
