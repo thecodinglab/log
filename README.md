@@ -37,15 +37,15 @@ import (
 	"os"
 
 	"github.com/thecodinglab/log"
-	"github.com/thecodinglab/log/sinks/fanout"
+	"github.com/thecodinglab/log/capture"
 	"github.com/thecodinglab/log/sinks/file"
 )
 
 func main() {
 	// initialize logger to print to stdout
-	logger := log.New(fanout.New(
+	logger := log.New(
 		file.New(os.Stdout, file.TextFormatter{}),
-	))
+	)
 	defer logger.Sync()
 
 	// attach the logger to the global application context
@@ -64,7 +64,7 @@ func main() {
 	}
 
 	if err := server.ListenAndServe(); err != nil {
-		log.Error(ctx, err)
+		capture.Error(ctx, err)
 	}
 }
 

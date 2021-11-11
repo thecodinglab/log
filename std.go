@@ -126,7 +126,7 @@ func (l stdLevelLogger) extractCaller(skip int) string {
 	for {
 		frame, next := frames.Next()
 
-		if !strings.HasSuffix(frame.File, pkgName+"/std.go") {
+		if !strings.HasPrefix(frame.Function, pkgName) {
 			return fmt.Sprint(l.trimPath(frame.File), ":", frame.Line)
 		}
 
