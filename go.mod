@@ -2,7 +2,10 @@ module github.com/thecodinglab/log
 
 go 1.17
 
-require github.com/fatih/color v1.13.0
+require (
+	github.com/fatih/color v1.13.0
+	github.com/getsentry/sentry-go v0.11.0
+)
 
 require (
 	github.com/mattn/go-colorable v0.1.11 // indirect
