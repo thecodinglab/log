@@ -13,7 +13,8 @@ const ErrorField = "error"
 type Option func(config *Config)
 
 type Config struct {
-	Level level.Level
+	Logger log.Logger
+	Level  level.Level
 }
 
 func Error(ctx context.Context, err error, opts ...Option) {
@@ -22,7 +23,8 @@ func Error(ctx context.Context, err error, opts ...Option) {
 	}
 
 	config := Config{
-		Level: level.Error,
+		Logger: nil,
+		Level:  level.Error,
 	}
 
 	for _, opt := range opts {
@@ -37,6 +39,10 @@ func ErrorWithConfig(ctx context.Context, config Config, err error) {
 		return
 	}
 
+	if config.Logger == nil {
+		config.Logger = log.Get(ctx)
+	}
+
 	// check if we have multiple errors and if so separate them into their individual errors
 	var group interface{ Errors() []error }
 	if errors.As(err, &group) {
@@ -46,10 +52,16 @@ func ErrorWithConfig(ctx context.Context, config Config, err error) {
 		return
 	}
 
-	log.Get(ctx).
+	config.Logger.
 		Level(config.Level).
 		With(ErrorField, err).
 		Print(err.Error())
+}
+
+func WithLogger(logger log.Logger) Option {
+	return func(config *Config) {
+		config.Logger = logger
+	}
 }
 
 func WithLevel(level level.Level) Option {
