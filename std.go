@@ -14,12 +14,14 @@ var _ Logger = (*stdLogger)(nil)
 
 type stdLogger struct {
 	sink Sink
+	min  level.Level
 	kv   fields.KV
 }
 
-func New(sink Sink) Logger {
+func New(sink Sink, min level.Level) Logger {
 	return stdLogger{
 		sink: sink,
+		min:  min,
 		kv:   nil,
 	}
 }
@@ -30,6 +32,10 @@ func (l stdLogger) With(kv ...interface{}) Logger {
 }
 
 func (l stdLogger) Level(lvl level.Level) level.Logger {
+	if !l.min.Enabled(lvl) {
+		return nopLevelLogger{}
+	}
+
 	return stdLevelLogger{
 		level:  lvl,
 		sink:   l.sink,
