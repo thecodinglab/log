@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/thecodinglab/log"
+	"github.com/thecodinglab/log/level"
 )
 
 type WriteSyncer interface {
@@ -24,18 +25,20 @@ func (fn FormatterFunc) Format(buffer *bytes.Buffer, entry *log.Entry) error {
 	return fn(buffer, entry)
 }
 
-var _ log.Sink = (*sink)(nil)
+var _ log.Sink = (*Sink)(nil)
 
-type sink struct {
+type Sink struct {
 	writer    WriteSyncer
 	formatter Formatter
+	min       level.Level
 	pool      sync.Pool
 }
 
-func New(writer WriteSyncer, encoder Formatter) log.Sink {
-	return &sink{
+func New(writer WriteSyncer, encoder Formatter, min level.Level) log.Sink {
+	return &Sink{
 		writer:    writer,
 		formatter: encoder,
+		min:       min,
 
 		pool: sync.Pool{
 			New: func() interface{} {
@@ -45,17 +48,25 @@ func New(writer WriteSyncer, encoder Formatter) log.Sink {
 	}
 }
 
-func (s *sink) Write(entry *log.Entry) {
+func (s *Sink) SetMinLevel(min level.Level) {
+	s.min = min
+}
+
+func (s *Sink) Write(entry *log.Entry) {
+	if !s.min.Enabled(entry.Level) {
+		return
+	}
+
 	// TODO error handling
 	_ = s.write(entry)
 }
 
-func (s *sink) Sync() {
+func (s *Sink) Sync() {
 	// TODO error handling
 	_ = s.writer.Sync()
 }
 
-func (s *sink) write(entry *log.Entry) error {
+func (s *Sink) write(entry *log.Entry) error {
 	buffer := s.pool.Get().(*bytes.Buffer)
 	defer s.pool.Put(buffer)
 

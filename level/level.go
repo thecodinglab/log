@@ -29,10 +29,3 @@ func (l Level) String() string {
 func (l Level) MarshalJSON() ([]byte, error) {
 	return json.Marshal(l.String())
 }
-
-type Logger interface {
-	With(kv ...interface{}) Logger
-
-	Print(args ...interface{})
-	Printf(format string, args ...interface{})
-}

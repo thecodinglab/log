@@ -23,7 +23,7 @@ func Error(ctx context.Context, err error, opts ...Option) {
 	}
 
 	config := Config{
-		Logger: nil,
+		Logger: log.Get(ctx),
 		Level:  level.Error,
 	}
 
@@ -39,7 +39,7 @@ func ErrorWithConfig(ctx context.Context, config Config, err error) {
 		return
 	}
 
-	if config.Logger == nil {
+	if !config.Logger.IsValid() {
 		config.Logger = log.Get(ctx)
 	}
 

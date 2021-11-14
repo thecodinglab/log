@@ -6,31 +6,35 @@ import (
 	"github.com/thecodinglab/log"
 )
 
-var _ log.Sink = (*sink)(nil)
+var _ log.Sink = (*Sink)(nil)
 
-type sink struct {
+type Sink struct {
 	sinks []log.Sink
 }
 
-func New(destinations ...log.Sink) log.Sink {
-	return sink{
+func New(destinations ...log.Sink) *Sink {
+	return &Sink{
 		sinks: destinations,
 	}
 }
 
-func (s sink) Write(entry *log.Entry) {
+func (s *Sink) Append(sinks ...log.Sink) {
+	s.sinks = append(s.sinks, sinks...)
+}
+
+func (s *Sink) Write(entry *log.Entry) {
 	s.forAll(func(sink log.Sink) {
 		sink.Write(entry)
 	})
 }
 
-func (s sink) Sync() {
+func (s *Sink) Sync() {
 	s.forAll(func(sink log.Sink) {
 		sink.Sync()
 	})
 }
 
-func (s sink) forAll(fn func(sink log.Sink)) {
+func (s *Sink) forAll(fn func(sink log.Sink)) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(s.sinks))
 

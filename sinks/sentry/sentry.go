@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+
 	"github.com/thecodinglab/log"
 	"github.com/thecodinglab/log/level"
 )
@@ -17,11 +18,11 @@ var levelMapping = map[level.Level]sentry.Level{
 	level.Error: sentry.LevelError,
 }
 
-type Option func(c *sink)
+type Option func(c *Sink)
 
-var _ log.Sink = (*sink)(nil)
+var _ log.Sink = (*Sink)(nil)
 
-type sink struct {
+type Sink struct {
 	min          level.Level
 	hub          *sentry.Hub
 	flushTimeout time.Duration
@@ -37,21 +38,25 @@ func New(opts ...Option) log.Sink {
 		hub.BindClient(client)
 	}
 
-	s := sink{
+	s := &Sink{
 		min:          level.Error,
 		hub:          hub,
 		flushTimeout: 5 * time.Second,
 	}
 
 	for _, option := range opts {
-		option(&s)
+		option(s)
 	}
 
 	return s
 }
 
-func (c sink) Write(entry *log.Entry) {
-	if !c.min.Enabled(entry.Level) {
+func (s *Sink) SetMinLevel(min level.Level) {
+	s.min = min
+}
+
+func (s *Sink) Write(entry *log.Entry) {
+	if !s.min.Enabled(entry.Level) {
 		return
 	}
 
@@ -73,21 +78,21 @@ func (c sink) Write(entry *log.Entry) {
 	event.Message = entry.Message
 	event.Timestamp = entry.Time
 
-	_ = c.hub.CaptureEvent(event)
+	_ = s.hub.CaptureEvent(event)
 }
 
-func (c sink) Sync() {
-	_ = c.hub.Flush(c.flushTimeout)
+func (s *Sink) Sync() {
+	_ = s.hub.Flush(s.flushTimeout)
 }
 
 func WithLevel(min level.Level) Option {
-	return func(c *sink) {
+	return func(c *Sink) {
 		c.min = min
 	}
 }
 
 func WithHub(hub *sentry.Hub) Option {
-	return func(c *sink) {
+	return func(c *Sink) {
 		c.hub = hub
 	}
 }
