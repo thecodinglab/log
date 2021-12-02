@@ -43,6 +43,10 @@ func ErrorWithConfig(ctx context.Context, config Config, err error) {
 		config.Logger = log.Get(ctx)
 	}
 
+	if !config.Logger.IsValid() {
+		panic(err)
+	}
+
 	// check if we have multiple errors and if so separate them into their individual errors
 	var group interface{ Errors() []error }
 	if errors.As(err, &group) {
