@@ -13,7 +13,7 @@ func Get(ctx context.Context) Logger {
 		return logger
 	}
 
-	return Logger{}
+	return Default()
 }
 
 func Attach(parent context.Context, logger Logger) context.Context {

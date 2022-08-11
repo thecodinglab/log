@@ -12,6 +12,16 @@ import (
 
 const pkgName = "github.com/thecodinglab/log"
 
+var defaultLogger = Logger{}
+
+func Default() Logger {
+	return defaultLogger
+}
+
+func SetDefault(logger Logger) {
+	defaultLogger = logger
+}
+
 type Entry struct {
 	Level   level.Level `json:"level"`
 	Time    time.Time   `json:"time"`
