@@ -44,7 +44,7 @@ func ErrorWithConfig(ctx context.Context, config Config, err error) {
 	}
 
 	if !config.Logger.IsValid() {
-		panic(err)
+		return
 	}
 
 	// check if we have multiple errors and if so separate them into their individual errors
